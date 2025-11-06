@@ -1,5 +1,149 @@
 import turtle
 import time
+from typing import List, Dict
+
+"""
+Traffic Light Simulator
+
+Refactored so you can create any number of lights per housing.
+
+Usage:
+ - Create TrafficLight(x, y, colors=[...], spacing=40)
+ - Call run_simulation([tl1, tl2, ...], sequence=[...], durations={...},
+                      blink_color='yellow', blink_times=5)
+
+The example at the bottom recreates the three housings that were
+previously in the file. Change positions or colors as needed.
+"""
+
+
+class TrafficLight:
+    """A traffic-light housing with an arbitrary ordered list of lights.
+
+    lights: list of color-names (strings). They will be stacked top->bottom
+    around the given (x,y) center with the provided spacing.
+    """
+
+    def __init__(self, x: int, y: int, colors: List[str], spacing: int = 40,
+                 housing_size=(6, 2)) -> None:
+        self.x = x
+        self.y = y
+        self.colors = list(colors)
+        self.spacing = spacing
+
+        # Draw housing (simple square stretched to look like a vertical box)
+        self.housing = turtle.Turtle()
+        self.housing.hideturtle()
+        self.housing.shape("square")
+        self.housing.shapesize(stretch_wid=housing_size[0], stretch_len=housing_size[1])
+        self.housing.penup()
+        self.housing.goto(self.x, self.y)
+
+        # Create light turtles and position them top -> bottom
+        self.lights: Dict[str, turtle.Turtle] = {}
+        n = len(self.colors)
+        if n == 0:
+            return
+
+        top_y = self.y + ((n - 1) / 2.0) * self.spacing
+        for i, color in enumerate(self.colors):
+            t = turtle.Turtle()
+            t.hideturtle()
+            t.shape("circle")
+            t.penup()
+            t.speed(0)
+            t.color("black")  # off state
+            pos_y = top_y - i * self.spacing
+            t.goto(self.x, pos_y)
+            t.showturtle()
+            self.lights[color] = t
+
+    def _set_color_safe(self, t: turtle.Turtle, name: str) -> None:
+        """Set color on turtle, with a safe fallback to hex if needed."""
+        try:
+            t.color(name)
+        except turtle.TurtleGraphicsError:
+            fallbacks = {"green": "#00FF00", "red": "#FF0000", "yellow": "#FFFF00"}
+            t.color(fallbacks.get(name, "black"))
+
+    def turn_on(self, color: str) -> None:
+        if color in self.lights:
+            self._set_color_safe(self.lights[color], color)
+
+    def turn_off(self, color: str) -> None:
+        if color in self.lights:
+            self._set_color_safe(self.lights[color], "black")
+
+    def blink(self, color: str, times: int = 5, on_time: float = 0.35, off_time: float = 0.25) -> None:
+        if color not in self.lights:
+            return
+        t = self.lights[color]
+        for _ in range(times):
+            self._set_color_safe(t, color)
+            time.sleep(on_time)
+            self._set_color_safe(t, "black")
+            time.sleep(off_time)
+
+
+def run_simulation(traffic_lights: List[TrafficLight], sequence: List[str] = None,
+                   durations: Dict[str, float] = None,
+                   blink_color: str = "yellow", blink_times: int = 5,
+                   blink_on: float = 0.35, blink_off: float = 0.25) -> None:
+    """Run a simple synchronous simulation across all provided traffic lights.
+
+    This runs an infinite loop. Each step turns the named color on for its
+    duration on every traffic light that has that color, then turns it off.
+    If the color equals blink_color, each light that supports it will blink
+    `blink_times` times instead of staying on continuously.
+    """
+    if sequence is None:
+        # default sequence: unified order from the union of colors in first light
+        if not traffic_lights:
+            return
+        sequence = list(traffic_lights[0].colors)
+
+    if durations is None:
+        durations = {"red": 3.0, "yellow": 1.0, "green": 3.0}
+
+    try:
+        while True:
+            for color in sequence:
+                if color == blink_color:
+                    # Blink on all lights that have this color
+                    for tl in traffic_lights:
+                        if color in tl.lights:
+                            tl.blink(color, times=blink_times, on_time=blink_on, off_time=blink_off)
+                    # short pause after the group blink
+                    time.sleep(0.2)
+                else:
+                    # Turn on the color for each light that supports it
+                    for tl in traffic_lights:
+                        if color in tl.lights:
+                            tl.turn_on(color)
+                    time.sleep(durations.get(color, 1.0))
+                    for tl in traffic_lights:
+                        if color in tl.lights:
+                            tl.turn_off(color)
+                    time.sleep(0.2)
+    except turtle.Terminator:
+        # window closed by user
+        pass
+
+
+if __name__ == "__main__":
+    # Example usage: recreate the three housings you had previously.
+    LIGHT_SPACING = 40
+
+    tl1 = TrafficLight(200, 100, colors=["red", "yellow", "green"], spacing=LIGHT_SPACING)
+    tl2 = TrafficLight(100, 200, colors=["red", "yellow", "green"], spacing=LIGHT_SPACING)
+    tl3 = TrafficLight(150, 150, colors=["red", "yellow", "green"], spacing=LIGHT_SPACING)
+
+    # Run the simulation (this will block; close the Turtle window to stop)
+    run_simulation([tl1, tl2, tl3], sequence=["red", "green", "yellow"],
+                   durations={"red": 3.0, "green": 3.0, "yellow": 1.0},
+                   blink_color="yellow", blink_times=5)
+import turtle
+import time
 
 # Screen setup
 screen = turtle.Screen()
