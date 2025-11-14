@@ -137,9 +137,9 @@ if __name__ == "__main__":
     tl1 = TrafficLight(200, 100, colors=["red", "yellow", "green"], spacing=LIGHT_SPACING)
     tl2 = TrafficLight(100, 200, colors=["red", "yellow", "green"], spacing=LIGHT_SPACING)
     tl3 = TrafficLight(150, 150, colors=["red", "yellow", "green"], spacing=LIGHT_SPACING)
-
+    tl4 = TrafficLight(-100, 0, colors=["red", "yellow", "green"], spacing=LIGHT_SPACING)
     # Run the simulation (this will block; close the Turtle window to stop)
-    run_simulation([tl1, tl2, tl3], sequence=["red", "green", "yellow"],
+    run_simulation([tl1, tl2, tl3, tl4], sequence=["red", "green", "yellow"],
                    durations={"red": 3.0, "green": 3.0, "yellow": 1.0},
                    blink_color="yellow", blink_times=5)
 import turtle
