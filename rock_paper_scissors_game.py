@@ -1,14 +1,3 @@
-"""Rock-Paper-Scissors game (new file). Does not replace existing file.
-
-Run interactively:
-    python rock_paper_scissors_game.py
-
-Run demo (non-interactive):
-    python rock_paper_scissors_game.py --demo --rounds 10
-
-Commands in interactive mode: 'quit' to exit, 'score' to show current score.
-"""
-
 from __future__ import annotations
 
 import argparse
