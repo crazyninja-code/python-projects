@@ -80,13 +80,13 @@ def update_prefrences(message):
     """
     text = message.lower()
 
-    #favourite color
+    #favorite color
     if "favorite colour is" in text:
         color = text.split("favorite color is ", 1)[1].strip().strip(".!?")
         memory["favorite_color"] = color
         return f"Cool! I will remember that your favorite color is {color}"
     
-    #favourite food
+    #favorite food
     if "favorite food is" in text:
         food = text.split("favorite food is ", 1)[1].strip().strip()(".!?")
         memory["favorite_food"] = food
@@ -117,34 +117,111 @@ def asnwer_questions(message):
             facts.append(f"Your favorite color is {memory['favorite_color']}")
 
         if memory["favorite_food"]:
-            facts.append(f"Your favourite food is {memory['favorite_food']}")
+            facts.append(f"Your favorite food is {memory['favorite_food']}")
 
         if memory["hobby"]:
             facts.append(f"Your hobby is {memory['hobby']}")
 
         if not facts:
-            return "I don't remember much yet. Tell me your favourite color, food, or hobby!"
+            return "I don't remember much yet. Tell me your favorite color, food, or hobby!"
         
         else:
             return "I remember that " +",".join(facts)+ "."
         
-    #Asks about favourite things
-    if "favourite color" in text and "my" not in text:
+    #Asks about favorite things
+    if "favorite color" in text and "my" not in text:
         if memory["favorite_color"]:
-            return f"You told me that your favourite color is {memory['favorite_color']}"
+            return f"You told me that your favorite color is {memory['favorite_color']}"
         else:
-            return "You haven't told me your favourite color yet. You can say: 'my favorite color is blue'."
+            return "You haven't told me your favorite color yet. You can say: 'my favorite color is blue'."
 
-    if "favourite food" in text and "my" not in text:
+    if "favorite food" in text and "my" not in text:
         if memory["favorite_food"]:
-            return f"You told me that your favourite food is {memory['favorite_food']}"
+            return f"You told me that your favorite food is {memory['favorite_food']}"
         else:
-            return "You haven't told me your favourite food yet. You can say: 'my favorite food is pizza'."     
+            return "You haven't told me your favorite food yet. You can say: 'my favorite food is pizza'."     
 
     if "hobby" in text and "my" not in text:
         if memory["hobby"]:
-            return f"You told me that your favourite hobby is {memory['hobby']}"
+            return f"You told me that your favorite hobby is {memory['hobby']}"
         else:
-            return "You haven't told me your favourite hobby yet. You can say: 'my favorite hobby is  playing chess'."  
+            return "You haven't told me your favorite hobby yet. You can say: 'my favorite hobby is  playing chess'."  
     
     return None #No questions answered
+
+def generate_default_reply(message):
+    """Fall back reply. Nothing else matches."""
+    text = message.lower()
+
+    if "bored" in text:
+        return "Are your bored? Maybe try teaching me something new in python: 😂"
+    
+    if "school" in text:
+        return "School can be tough, but learning cool things like how to code is pretty cool!"
+    
+    if "game" in text:
+        return "I love games! You could even code a new game in python and show it to me"
+    
+    return "Interesting, tell me more or tell me about your favorite color, food, or hobby/activity!"
+
+#------- Main chat loop -------
+def chat():
+    print("Bot: Hello! I am a memory bot 🤖")
+    remember("Bot: ", "Hello! I am a memory bot 🤖")
+
+    ask_for_name()
+
+    print("Bot: You can talk to me about your favorite color, food, or hobby or you could just chat!")
+    print("Bot: Type 'history' to see our conversation history or 'quit' to stop chatting/exit. \n")
+    remember("Bot: ","You can talk to me about your favorite color, food, or hobby or you could just chat!")
+
+    while True:
+        user_input = input("You: ")
+
+        #Store in history
+        remember("You", user_input)
+        
+        #Commands
+        if user_input.lower().strip() == "quit":
+            print("Bot: I had a nice time chatting with you! 👋")
+            remember("Bot: ","I had a nice time chatting with you! 👋")
+            break
+        
+        if user_input.lower().strip() == 'history':
+            print_history()
+            continue
+
+        # 1. Try small talk
+        reply = handle_small_talk(user_input)
+        if reply:
+            print("Bot: ", reply)
+            remember("Bot: ", reply)
+            #If the user said bye, end after reply
+            if "bye" in reply:
+                print("Bot: Bye! 👋")
+                break
+            continue
+
+        # 2. Try to update preferences
+        reply = update_prefrences(user_input)
+        if reply:
+            print("Bot: ", reply)
+            remember("Bot: ", reply)
+            continue
+
+        # 3. Try to answer questions
+        reply = asnwer_questions(user_input)
+        if reply:
+            print("Bot: ", reply)
+            remember("Bot: ", reply)
+            continue
+
+        # 4. Fall back reply
+        reply = generate_default_reply(user_input)
+        print("Bot: ", reply)
+        remember("Bot: ", reply)
+    
+# Runs the chatbot/program
+
+if __name__ == "__main__":
+    chat()
