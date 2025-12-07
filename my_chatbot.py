@@ -34,12 +34,12 @@ def remember(speaker, message):
 def print_history():
     """Prints the conversations history."""
     print("\n --- Conversation History ---")
-    for speaker, message in memory("history"):
-        print(f"{speaker} : {message}")
+    for message in memory["history"]:
+        print(message)
     print("-------------------------")
 
 def ask_for_name():
-    """Asks the usre for their name if we don't know it yet."""
+    """Asks the user for their name if we don't know it yet."""
     if memory["name"] is None:
         print("Bot: I don't think we have met before. What is your name?")
         user_input = input("You: ")
@@ -88,7 +88,7 @@ def update_prefrences(message):
     
     #favorite food
     if "favorite food is" in text:
-        food = text.split("favorite food is ", 1)[1].strip().strip()(".!?")
+        food = text.split("favorite food is ", 1)[1].strip().strip(".!?")
         memory["favorite_food"] = food
         return f"Yummy! {food} sounds delicious. I will remember it! "
     
